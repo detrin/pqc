@@ -1,0 +1,15 @@
+# Binaries
+/pqcrypt
+/pgp_demo
+
+# Generated keys and artifacts
+sequoia/keys/
+sequoia/messages/
+sequoia/signatures/
+sequoia/.sequoia-home/
+
+# Blog draft (lives in astro repo)
+blog-post.md
+
+# OS
+.DS_Store

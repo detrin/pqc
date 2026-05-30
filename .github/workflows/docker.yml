@@ -1,0 +1,50 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  sequoia:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./sequoia
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/detrin/pqc/sequoia:latest
+            ${{ env.REGISTRY }}/detrin/pqc/sequoia:${{ github.sha }}
+
+  gopenpgp:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./gopenpgp
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/detrin/pqc/gopenpgp:latest
+            ${{ env.REGISTRY }}/detrin/pqc/gopenpgp:${{ github.sha }}
