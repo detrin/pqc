@@ -53,18 +53,52 @@ docker pull ghcr.io/detrin/pqc/sequoia:latest
 docker pull ghcr.io/detrin/pqc/gopenpgp:latest
 ```
 
-Then use directly:
+Then use it - full workflow:
 
 ```bash
-# Sequoia PQC
-docker run --rm -v $(pwd):/data ghcr.io/detrin/pqc/sequoia key generate \
-  --own-key --name "Alice" --email alice@example.com \
-  --without-password --profile rfc9580 --cipher-suite mldsa65-ed25519 \
-  --output /data/alice.pgp --rev-cert /data/alice.rev
+SQ="docker run --rm -v $(pwd):/data ghcr.io/detrin/pqc/sequoia"
 
-# GopenPGP (pqcrypt)
-docker run --rm -v $(pwd):/data ghcr.io/detrin/pqc/gopenpgp keygen \
-  --name "Alice" --email alice@example.com --pqc --output /data/alice
+# 1. Generate a post-quantum key pair
+$SQ key generate \
+  --own-key \
+  --name "Your Name" \
+  --email you@example.com \
+  --without-password \
+  --profile rfc9580 \
+  --cipher-suite mldsa65-ed25519 \
+  --output /data/key.pgp \
+  --rev-cert /data/key.rev
+
+# 2. Extract public certificate
+$SQ key delete \
+  --cert-file=/data/key.pgp \
+  --output=/data/key.pub.pgp
+
+# 3. Encrypt a file
+echo "secret message" > secret.txt
+$SQ encrypt \
+  --for-file /data/key.pub.pgp \
+  --without-signature \
+  --output /data/secret.pgp \
+  /data/secret.txt
+
+# 4. Decrypt
+$SQ decrypt \
+  --recipient-file /data/key.pgp \
+  --output /data/decrypted.txt \
+  /data/secret.pgp
+
+# 5. Sign a document
+$SQ sign \
+  --signer-file /data/key.pgp \
+  --signature-file /data/doc.sig \
+  /data/secret.txt
+
+# 6. Verify
+$SQ verify \
+  --signer-file /data/key.pub.pgp \
+  --signature-file /data/doc.sig \
+  /data/secret.txt
 ```
 
 ### Option B: Clone and build locally
