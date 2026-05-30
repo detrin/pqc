@@ -151,6 +151,16 @@ docker run --rm pqc-interop
 
 ## Build from Source (no Docker)
 
+### Sequoia PQC (Ubuntu 26.04+)
+
+Ubuntu 26.04 ships OpenSSL 3.5 natively:
+
+```bash
+sudo apt install libssl-dev pkg-config capnproto clang libclang-dev
+cargo install sequoia-sq --version 1.4.0-pqc.1 \
+  --locked --no-default-features --features crypto-openssl
+```
+
 ### Sequoia PQC (macOS)
 
 ```bash
@@ -163,6 +173,8 @@ LIBRARY_PATH=$(brew --prefix openssl@3)/lib \
   cargo install sequoia-sq --version 1.4.0-pqc.1 \
     --locked --no-default-features --features crypto-openssl
 ```
+
+> **Note:** Debian 12 and Ubuntu 24.04 ship OpenSSL 3.0 which lacks ML-KEM/ML-DSA. Use the Docker image or compile OpenSSL 3.5 from source.
 
 ### pqcrypt (any platform with Go)
 
