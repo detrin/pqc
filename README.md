@@ -10,7 +10,41 @@ This repo packages everything into Docker images so you can generate post-quantu
 
 > **Warning:** This uses pre-release implementations of a draft standard. The algorithms (ML-KEM-768, ML-DSA-65) are NIST-standardized, but the OpenPGP integration is not yet an RFC. Do not use for production secrets without understanding the risks. Keys may not be compatible with future stable releases.
 
-## Quick Start
+## Build from Source
+
+### Sequoia PQC (Ubuntu 26.04+)
+
+Ubuntu 26.04 ships OpenSSL 3.5 natively:
+
+```bash
+sudo apt install libssl-dev pkg-config capnproto clang libclang-dev
+cargo install sequoia-sq --version 1.4.0-pqc.1 \
+  --locked --no-default-features --features crypto-openssl
+```
+
+### Sequoia PQC (macOS)
+
+```bash
+brew install openssl@3 capnp
+
+BINDGEN_EXTRA_CLANG_ARGS="-I$(brew --prefix openssl@3)/include" \
+OPENSSL_DIR=$(brew --prefix openssl@3) \
+C_INCLUDE_PATH=$(brew --prefix openssl@3)/include \
+LIBRARY_PATH=$(brew --prefix openssl@3)/lib \
+  cargo install sequoia-sq --version 1.4.0-pqc.1 \
+    --locked --no-default-features --features crypto-openssl
+```
+
+> **Note:** Debian 12 and Ubuntu 24.04 ship OpenSSL 3.0 which lacks ML-KEM/ML-DSA. Use the Docker image or compile OpenSSL 3.5 from source.
+
+### pqcrypt (any platform with Go)
+
+```bash
+cd gopenpgp/
+go build -o pqcrypt ./cmd/pqcrypt/
+```
+
+## Quick Start (Docker)
 
 ### Option A: Pull from GitHub Container Registry (no clone needed)
 
@@ -147,40 +181,6 @@ docker run --rm pqc-interop
 ├── .github/workflows/      # Auto-builds and pushes images to GHCR
 ├── Dockerfile              # Combined interop test
 └── docker-demo.sh
-```
-
-## Build from Source (no Docker)
-
-### Sequoia PQC (Ubuntu 26.04+)
-
-Ubuntu 26.04 ships OpenSSL 3.5 natively:
-
-```bash
-sudo apt install libssl-dev pkg-config capnproto clang libclang-dev
-cargo install sequoia-sq --version 1.4.0-pqc.1 \
-  --locked --no-default-features --features crypto-openssl
-```
-
-### Sequoia PQC (macOS)
-
-```bash
-brew install openssl@3 capnp
-
-BINDGEN_EXTRA_CLANG_ARGS="-I$(brew --prefix openssl@3)/include" \
-OPENSSL_DIR=$(brew --prefix openssl@3) \
-C_INCLUDE_PATH=$(brew --prefix openssl@3)/include \
-LIBRARY_PATH=$(brew --prefix openssl@3)/lib \
-  cargo install sequoia-sq --version 1.4.0-pqc.1 \
-    --locked --no-default-features --features crypto-openssl
-```
-
-> **Note:** Debian 12 and Ubuntu 24.04 ship OpenSSL 3.0 which lacks ML-KEM/ML-DSA. Use the Docker image or compile OpenSSL 3.5 from source.
-
-### pqcrypt (any platform with Go)
-
-```bash
-cd gopenpgp/
-go build -o pqcrypt ./cmd/pqcrypt/
 ```
 
 ## Standard
